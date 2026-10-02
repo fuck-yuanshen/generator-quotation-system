@@ -1,0 +1,10 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.git
+.gitignore
+data.db
+data
+static/uploads
+static/generated

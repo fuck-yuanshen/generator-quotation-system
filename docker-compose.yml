@@ -1,0 +1,25 @@
+services:
+  quote-web:
+    build: .
+    container_name: quote-web
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-18082}:5000"
+    environment:
+      FLASK_SECRET_KEY: ${FLASK_SECRET_KEY:-change-this-secret}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+      DB_PATH: ${DB_PATH:-/data/db/data.db}
+      UPLOAD_DIR: ${UPLOAD_DIR:-/data/uploads}
+      GENERATED_DIR: ${GENERATED_DIR:-/data/generated}
+      APP_URL_PREFIX: ${APP_URL_PREFIX:-}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-}
+      WECHAT_APP_ID: ${WECHAT_APP_ID:-}
+      WECHAT_APP_SECRET: ${WECHAT_APP_SECRET:-}
+      WECHAT_SHARE_TITLE: ${WECHAT_SHARE_TITLE:-}
+      WECHAT_SHARE_DESC: ${WECHAT_SHARE_DESC:-}
+      WECHAT_SHARE_IMG_URL: ${WECHAT_SHARE_IMG_URL:-}
+    volumes:
+      - ./data/db:/data/db
+      - ./data/uploads:/data/uploads
+      - ./data/generated:/data/generated

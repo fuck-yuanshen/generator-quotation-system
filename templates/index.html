@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>{{ title }}</title>
+    <meta name="description" content="{{ (share_meta.desc if share_meta else title) | e }}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ (share_meta.title if share_meta else title) | e }}">
+    <meta property="og:description" content="{{ (share_meta.desc if share_meta else title) | e }}">
+    <meta property="og:url" content="{{ (share_meta.link if share_meta else request.base_url) | e }}">
+    {% if share_meta and share_meta.img_url %}
+    <meta property="og:image" content="{{ share_meta.img_url | e }}">
+    {% endif %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v='20260302b') }}">
+</head>
+<body>
+    <div class="page">
+        <main class="mutebox-single">
+            <section class="group-card">
+                <div class="group-head">
+                    <span class="group-title">发电机组价格计算器</span>
+                    <span id="selectedCount" class="selected-count">已选 0 项</span>
+                </div>
+                <div id="loadingText" class="loading-text">正在加载配置...</div>
+                <div id="categoriesContainer" class="category-list"></div>
+            </section>
+
+            <section id="resultPanel" class="result-panel">
+                <div id="resultContent" class="result-empty">请选择配置后点击“生成报价单”</div>
+            </section>
+        </main>
+
+        <div class="sticky-wrap">
+            <div class="price-box">
+                <div class="price-line">
+                    <span class="price-label">单价：</span>
+                    <span class="price-value"><span id="totalPrice">0.00</span><em>元</em></span>
+                </div>
+                <div class="tax-switch">
+                    <label class="tax-item"><input type="radio" name="taxMode" value="exclude"> 不含税</label>
+                    <label class="tax-item"><input type="radio" name="taxMode" value="include" checked> 含税</label>
+                </div>
+            </div>
+
+            <button id="createQuoteBtn" type="button" class="quote-btn">生成报价单</button>
+
+            <div class="quick-actions">
+                <button id="viewImageBtn" type="button" class="quick-btn">图片</button>
+                <button id="viewParamsBtn" type="button" class="quick-btn">参数</button>
+                <button id="viewDeliveryBtn" type="button" class="quick-btn">货期</button>
+                <button id="createContractBtn" type="button" class="quick-btn">合同</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="popupMask" class="popup-mask hidden">
+        <div class="popup-card">
+            <button id="popupCloseBtn" class="popup-close" type="button">×</button>
+            <div id="popupContent"></div>
+        </div>
+    </div>
+
+    <script>
+        window.APP_BASE_PATH = {{ request.script_root | tojson }};
+        window.APP_SHARE_CONFIG = {{ (share_meta or {}) | tojson }};
+        window.APP_WECHAT_APP_ID = {{ (wechat_app_id or "") | tojson }};
+    </script>
+    <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js', v='20260302b') }}"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/params.css') }}">
+</head>
+<body>
+    <main class="params-shell">
+        <header class="params-header">
+            <h1>所选产品参数</h1>
+            <a href="{{ url_for('index') }}">返回报价页</a>
+        </header>
+
+        <section class="card">
+            <div class="card-head">
+                <h2>参数明细</h2>
+                <button id="generateParamsImageBtn" type="button">生成参数图片</button>
+            </div>
+            <div id="paramsContainer" class="params-list">正在加载...</div>
+        </section>
+    </main>
+
+    <div id="popupMask" class="popup-mask hidden">
+        <div class="popup-card">
+            <button id="popupCloseBtn" class="popup-close" type="button">×</button>
+            <div id="popupContent"></div>
+        </div>
+    </div>
+
+    <script>
+        window.APP_BASE_PATH = {{ request.script_root | tojson }};
+    </script>
+    <script src="{{ url_for('static', filename='js/params.js') }}"></script>
+</body>
+</html>

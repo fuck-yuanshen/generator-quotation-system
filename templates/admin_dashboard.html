@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css', v='20260307a') }}">
+</head>
+<body class="admin-page">
+    <header class="admin-header">
+        <div>
+            <h1>报价系统后台</h1>
+            <p>可调整每个选项价格、上下架状态与图片</p>
+        </div>
+        <div class="admin-header-actions">
+            <a href="{{ url_for('index') }}" target="_blank">打开前台</a>
+            <a href="{{ url_for('admin_logout') }}">退出登录</a>
+        </div>
+    </header>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <section class="flash-list">
+                {% for m in messages %}
+                    <div class="flash-item">{{ m }}</div>
+                {% endfor %}
+            </section>
+        {% endif %}
+    {% endwith %}
+
+    <main class="admin-main">
+        <section class="card">
+            <h2>基础设置</h2>
+            <form method="post" action="{{ url_for('admin_update_settings') }}" class="grid-form">
+                <label>公司名称<input type="text" name="company_name" value="{{ settings.company_name }}"></label>
+                <label>联系人<input type="text" name="company_contact" value="{{ settings.company_contact }}"></label>
+                <label>联系电话<input type="text" name="company_phone" value="{{ settings.company_phone }}"></label>
+                <label>公司地址<input type="text" name="company_address" value="{{ settings.company_address }}"></label>
+                <label>税率（如 0.13）<input type="text" name="tax_rate" value="{{ settings.tax_rate }}"></label>
+                <label>货期说明<input type="text" name="delivery_term" value="{{ settings.delivery_term }}"></label>
+                <div class="full-row checkbox-row">
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="quotation_show_company" value="1" {% if settings.quotation_show_company == "1" %}checked{% endif %}>
+                        报价单底部显示公司名称
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="quotation_show_contact" value="1" {% if settings.quotation_show_contact == "1" %}checked{% endif %}>
+                        报价单底部显示联系方式
+                    </label>
+                </div>
+                <label class="full-row">合同说明
+                    <textarea name="contract_notice" rows="2">{{ settings.contract_notice }}</textarea>
+                </label>
+                <button type="submit">保存设置</button>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>新增分类</h2>
+            <form method="post" action="{{ url_for('admin_add_category') }}" class="grid-form">
+                <label>分类名称<input type="text" name="name" required></label>
+                <label>排序<input type="number" name="sort_order" value="0"></label>
+                <label>是否必选
+                    <select name="required">
+                        <option value="1">是</option>
+                        <option value="0">否</option>
+                    </select>
+                </label>
+                <label>选择模式
+                    <select name="selection_mode">
+                        <option value="single">单选下拉</option>
+                        <option value="multi">多选（可选配置）</option>
+                    </select>
+                </label>
+                <label class="full-row">描述<input type="text" name="description"></label>
+                <button type="submit">新增分类</button>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>分类管理</h2>
+            {% for cat in categories %}
+                <div class="line-item">
+                    <form method="post" action="{{ url_for('admin_update_category', category_id=cat.id) }}" class="inline-form category-form">
+                        <input type="text" name="name" value="{{ cat.name }}" required>
+                        <input type="number" name="sort_order" value="{{ cat.sort_order }}">
+                        <select name="required">
+                            <option value="1" {% if cat.required %}selected{% endif %}>必选</option>
+                            <option value="0" {% if not cat.required %}selected{% endif %}>可选</option>
+                        </select>
+                        <select name="selection_mode">
+                            <option value="single" {% if cat.selection_mode != 'multi' %}selected{% endif %}>单选下拉</option>
+                            <option value="multi" {% if cat.selection_mode == 'multi' %}selected{% endif %}>多选</option>
+                        </select>
+                        <input type="text" name="description" value="{{ cat.description }}" placeholder="分类描述">
+                        <button type="submit">保存</button>
+                    </form>
+                    <form method="post" action="{{ url_for('admin_delete_category', category_id=cat.id) }}" onsubmit="return confirm('确定删除该分类及其全部选项？')">
+                        <button type="submit" class="danger">删除</button>
+                    </form>
+                </div>
+            {% endfor %}
+        </section>
+
+        <section class="card">
+            <h2>新增选项</h2>
+            <form method="post" action="{{ url_for('admin_add_option') }}" class="grid-form">
+                <label>所属分类
+                    <select name="category_id" required>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>选项名称<input type="text" name="name" required></label>
+                <label>价格（元）<input type="number" step="0.01" name="price" value="0"></label>
+                <label>排序<input type="number" name="sort_order" value="0"></label>
+                <label>状态
+                    <select name="is_active">
+                        <option value="1">启用</option>
+                        <option value="0">停用</option>
+                    </select>
+                </label>
+                <label>图片URL<input type="text" name="image_path" placeholder="/static/uploads/xxx.png 或 http(s)://"></label>
+                <label class="full-row">参数（每行：参数名:参数值）<textarea name="params_text" rows="4" placeholder="额定功率:200kW&#10;额定电压:400V"></textarea></label>
+                <label class="full-row">描述<input type="text" name="description"></label>
+                <button type="submit">新增选项</button>
+            </form>
+        </section>
+
+        {% for cat in categories %}
+            <section class="card">
+                <h2>{{ cat.name }} - 选项管理</h2>
+                {% if cat.options %}
+                    {% for option in cat.options %}
+                        <div class="option-item">
+                            <form method="post" action="{{ url_for('admin_update_option', option_id=option.id) }}" class="inline-form option-form">
+                                <input type="text" name="name" value="{{ option.name }}" required>
+                                <input type="number" step="0.01" name="price" value="{{ option.price }}">
+                                <input type="number" name="sort_order" value="{{ option.sort_order }}">
+                                <select name="is_active">
+                                    <option value="1" {% if option.is_active %}selected{% endif %}>启用</option>
+                                    <option value="0" {% if not option.is_active %}selected{% endif %}>停用</option>
+                                </select>
+                                <input type="text" name="image_path" value="{{ option.image_path }}" placeholder="图片URL">
+                                <input type="text" name="description" value="{{ option.description }}" placeholder="描述">
+                                <textarea name="params_text" rows="3" placeholder="每行：参数名:参数值">{{ option.params_text }}</textarea>
+                                <button type="submit">保存</button>
+                            </form>
+                            <form method="post" enctype="multipart/form-data" action="{{ url_for('admin_upload_option_image', option_id=option.id) }}" class="upload-form">
+                                <input type="file" name="image" accept="image/png,image/jpeg,image/webp" required>
+                                <button type="submit">上传图片</button>
+                            </form>
+                            <form method="post" action="{{ url_for('admin_delete_option', option_id=option.id) }}" onsubmit="return confirm('确定删除该选项？')">
+                                <button type="submit" class="danger">删除</button>
+                            </form>
+                            {% if option.image_path %}
+                                <img class="option-preview" src="{{ option.image_path }}" alt="{{ option.name }}">
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="muted">该分类暂无选项</p>
+                {% endif %}
+            </section>
+        {% endfor %}
+    </main>
+</body>
+</html>
